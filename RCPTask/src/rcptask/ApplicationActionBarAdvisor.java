@@ -20,6 +20,7 @@ import rcptask.Action.AddAction;
 import rcptask.Action.DeleteAction;
 import rcptask.Action.OpenDir;
 import rcptask.Action.SaveAction;
+import rcptask.command.StudentCommand;
 import rcptask.viewpac.StudentView;
 
 public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
@@ -60,40 +61,40 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 
 	@Override
 	protected void fillMenuBar(IMenuManager menuBar) {
-		MenuManager fileMenu = new MenuManager("&File", IWorkbenchActionConstants.M_FILE);
-		MenuManager editMenu = new MenuManager("&Edit", IWorkbenchActionConstants.M_EDIT);
-		MenuManager helpMenu = new MenuManager("&Help", IWorkbenchActionConstants.M_HELP);
+//		MenuManager fileMenu = new MenuManager("&File", IWorkbenchActionConstants.M_FILE);
+//		MenuManager editMenu = new MenuManager("&Edit", IWorkbenchActionConstants.M_EDIT);
+//		MenuManager helpMenu = new MenuManager("&Help", IWorkbenchActionConstants.M_HELP);
 
-		menuBar.add(fileMenu);
-		menuBar.add(new GroupMarker(IWorkbenchActionConstants.MB_ADDITIONS));
-		menuBar.add(editMenu);
-		menuBar.add(new GroupMarker(IWorkbenchActionConstants.MB_ADDITIONS));
-		menuBar.add(helpMenu);
-
-		// File
-
-		fileMenu.add(openDirAction);
-		fileMenu.add(addAction);
-		fileMenu.add(saveAction);
-		fileMenu.add(new Separator());
-		fileMenu.add(exitAction);
-
-		// Edit
-
-		editMenu.add(addAction);
-		editMenu.add(deleteAction);
-
-		// Help
-		helpMenu.add(aboutAction);
+//		menuBar.add(fileMenu);
+//		menuBar.add(new GroupMarker(IWorkbenchActionConstants.MB_ADDITIONS));
+//		menuBar.add(editMenu);
+//		menuBar.add(new GroupMarker(IWorkbenchActionConstants.MB_ADDITIONS));
+//		menuBar.add(helpMenu);
+//
+//		// File
+//
+//		fileMenu.add(openDirAction);
+//		fileMenu.add(addAction);
+//		fileMenu.add(saveAction);
+//		fileMenu.add(new Separator());
+//		fileMenu.add(exitAction);
+//
+//		// Edit
+//
+//		editMenu.add(addAction);
+//		editMenu.add(deleteAction);
+//
+//		// Help
+//		helpMenu.add(aboutAction);
 	}
 
 	@Override
 	protected void fillCoolBar(ICoolBarManager coolBar) {
-		IToolBarManager toolbar = new ToolBarManager(SWT.FLAT | SWT.RIGHT);
-		coolBar.add(new ToolBarContributionItem(toolbar, "main"));
-		toolbar.add(openDirAction);
-		toolbar.add(saveAction);
-		toolbar.add(deleteAction);
-		toolbar.add(addAction);
+//		IToolBarManager toolbar = new ToolBarManager(SWT.FLAT | SWT.RIGHT);
+//		coolBar.add(new ToolBarContributionItem(toolbar, "main"));
+//		toolbar.add(openDirAction);
+//		toolbar.add(saveAction);
+//		toolbar.add(deleteAction);
+//		toolbar.add(addAction);
 	}
 }

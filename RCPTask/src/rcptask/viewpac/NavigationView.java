@@ -1,16 +1,16 @@
 package rcptask.viewpac;
 
 import java.io.File;
-import java.net.URL;
+import java.nio.file.Path;
+import java.util.Arrays;
 
-import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.resource.LocalResourceManager;
 import org.eclipse.jface.resource.ResourceManager;
 import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider;
 import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider.IStyledLabelProvider;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.StyledString;
@@ -20,40 +20,56 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.FrameworkUtil;
 
 import rcptask.Activator;
+import rcptask.Student;
+import rcptask.utils.CSVReader;
 
 public class NavigationView extends ViewPart {
 	public static final String ID = "rcptask.viewpac.navigationView";
 	private TreeViewer viewer;
+	private String path = "C:\\Users\\Illia\\git\\RCPTask\\RCPTask\\Folder";
 
 	public void createPartControl(Composite parent) {
-		File file = new File("C:\\Users\\Illia\\eclipse-workspace\\RCPTask\\Folder");
+		File file = new File(path);
 		viewer = new TreeViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
 		viewer.setContentProvider(new ViewContentProvider());
 		viewer.setLabelProvider(new DelegatingStyledCellLabelProvider(new ViewLabelProvider()));
-		viewer.setInput(file.listFiles());
-	}
-
-	private ImageDescriptor createImageDescriptor(String path) {
-		Bundle bundle = FrameworkUtil.getBundle(ViewLabelProvider.class);
-		URL url = FileLocator.find(bundle, new Path(path), null);
-		return ImageDescriptor.createFromURL(url);
+		viewer.addDoubleClickListener(d -> {
+			IStructuredSelection selection = viewer.getStructuredSelection();
+			File fileToRead = (File)selection.getFirstElement();
+			try {
+				Student student = CSVReader.readStudentListFromCSV(fileToRead.getAbsolutePath());
+				System.err.println(student);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		});
+		viewer.setInput(new File(file.getParent()).listFiles());
 	}
 
 	class ViewContentProvider implements ITreeContentProvider {
+		@Override
 		public void inputChanged(Viewer v, Object oldInput, Object newInput) {
+			// empty
 		}
 
 		@Override
 		public void dispose() {
+			// empty
 		}
 
 		@Override
 		public Object[] getElements(Object inputElement) {
-			return (File[]) inputElement;
+			File[] arr = (File[]) inputElement;
+			File[] newArr = new File[1];
+			String fileName = new File(path).getName();
+			for (File file : arr) {
+				if(file.getName().equals(fileName)) {
+					newArr[0]=file;
+				}
+			}
+			return newArr;
 		}
 
 		@Override
@@ -95,12 +111,12 @@ public class NavigationView extends ViewPart {
 			if (element instanceof File) {
 				File file = (File) element;
 					StyledString styledString = new StyledString(getFileName(file).replaceFirst("[.][^.]+$", ""));
-					String[] files = file.list();
-					if (files != null) {
-						styledString.append(" ( " + files.length + " ) ", StyledString.COUNTER_STYLER);
-					}
-					return styledString;
-				
+				String[] files = file.list();
+				if (files != null) {
+					styledString.append(" ( " + files.length + " ) ", StyledString.COUNTER_STYLER);
+				}
+				return styledString;
+
 			}
 			return null;
 		}

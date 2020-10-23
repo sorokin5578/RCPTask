@@ -1,5 +1,6 @@
-package rcptask.viewpac;
+package rcptask.editor;
 
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -13,23 +14,76 @@ import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.part.ViewPart;
-import javax.annotation.*;
+import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IEditorSite;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.handlers.HandlerUtil;
+import org.eclipse.ui.part.EditorPart;
 
+import rcptask.Student;
+import rcptask.utils.CSVWriter;
 import rcptask.utils.ImgUtil;
 import rcptask.viewpac.regexp.RegExp;
 
-public class StudentView extends ViewPart {
-	public static final String ID = "rcptask.viewpac.view";
+public class StudentEditor extends EditorPart {
 
-	public StudentView() {
-		System.err.println("constr");
+	public static final String ID = "rcptask.editor.studentEditor";
+
+	private Text nameText;
+	private Text groupText;
+	private Text adressText;
+	private Text cityText;
+	private Text resulText;
+
+	private boolean dirty;
+
+	public StudentEditor() {
+
 	}
-	
-	
-	@PostConstruct
+
+	@Override
+	public void doSave(IProgressMonitor monitor) {
+		Student student = new Student(nameText.getText(), Integer.parseInt(groupText.getText()), adressText.getText(),
+				cityText.getText(), Integer.parseInt(resulText.getText()));
+		CSVWriter.writeCSVInFile(student);
+	}
+
+	@Override
+	public void doSaveAs() {
+
+	}
+
+	/**
+	 * Important!!!
+	 */
+	@Override
+	public void init(IEditorSite site, IEditorInput input) throws PartInitException {
+		if (!(input instanceof StudentEditorInput)) {
+			throw new PartInitException("Invalid Input: Must be " + StudentEditorInput.class.getName());
+		}
+		setSite(site);
+		setInput(input);
+	}
+
+	@Override
+	public boolean isDirty() {
+		return true;
+	}
+
+	private void setDirty(boolean dirty) {
+		System.err.println(dirty);
+		this.dirty = dirty;
+	}
+
+	@Override
+	public boolean isSaveAsAllowed() {
+		return false;
+	}
+
+	@Override
 	public void createPartControl(Composite parent) {
-		System.err.println("post");
 		Composite top = new Composite(parent, SWT.NONE);
 		top.setLayout(new GridLayout(2, true));
 		top.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
@@ -39,19 +93,19 @@ public class StudentView extends ViewPart {
 		textComposite.setLayout(new GridLayout(3, false));
 
 		initNewLabel(textComposite, "Name");
-		initNewText(textComposite, "Name", "Insert name");
+		nameText = initNewText(textComposite, "Name", "Insert name");
 
 		initNewLabel(textComposite, "Group");
-		initNewText(textComposite, "Group", "Insert group");
+		groupText = initNewText(textComposite, "Group", "Insert group");
 
 		initNewLabel(textComposite, "Adress");
-		initNewText(textComposite, "Adress", "Insert adress");
+		adressText = initNewText(textComposite, "Adress", "Insert adress");
 
 		initNewLabel(textComposite, "City");
-		initNewText(textComposite, "City", "Insert city");
+		cityText = initNewText(textComposite, "City", "Insert city");
 
 		initNewLabel(textComposite, "Result");
-		initNewText(textComposite, "Result", "Insert result");
+		resulText = initNewText(textComposite, "Result", "Insert result");
 
 		Composite imgComposite = new Composite(top, SWT.NONE);
 		imgComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
@@ -78,7 +132,6 @@ public class StudentView extends ViewPart {
 				dialog.setFilterExtensions(extension);
 			}
 		});
-
 	}
 
 	private Label initNewLabel(Composite parent, String text) {
@@ -101,6 +154,7 @@ public class StudentView extends ViewPart {
 
 		@Override
 		public void modifyText(ModifyEvent e) {
+			setDirty(true);
 			Text text = (Text) e.getSource();
 			if (isInputDataValid(text.getText(), text.getMessage()) || text.getText().length() == 0) {
 				text.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
@@ -131,6 +185,7 @@ public class StudentView extends ViewPart {
 
 	@Override
 	public void setFocus() {
-		// empty
+
 	}
+
 }

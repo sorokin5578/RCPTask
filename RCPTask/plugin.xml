@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+         id="application"
+         point="org.eclipse.core.runtime.applications">
+      <application>
+         <run
+               class="rcptask.Application">
+         </run>
+      </application>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="rcptask.Perspective"
+            name="RCP Perspective"
+            id="RCPTask.perspective">
+      </perspective>
+   </extension>
+      <extension
+         point="org.eclipse.ui.views">
+      <view
+            name="Student"
+            allowMultiple="true"
+            icon="icons/eclipse16.png"
+            class="rcptask.viewpac.StudentView"
+            id="rcptask.viewpac.view">
+      </view>
+      <view
+            name="Tree"
+            allowMultiple="true"
+            icon="icons/eclipse16.png"
+            class="rcptask.viewpac.NavigationView"
+            id="rcptask.viewpac.navigationView">
+      </view>
+   </extension>
+
+</plugin>

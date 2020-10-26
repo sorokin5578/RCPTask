@@ -9,9 +9,21 @@ public class Student {
 	private String adress;
 	private String city;
 	private int result;
+	private String imgPath;
 
+	public Student() {
+	}
+	
+	public Student(String name, int group, String adress, String city, int result, String imgPath) {
+		this.name = name;
+		this.group = group;
+		this.adress = adress;
+		this.city = city;
+		this.result = result;
+		this.imgPath = imgPath;
+	}
+	
 	public Student(String name, int group, String adress, String city, int result) {
-		super();
 		this.name = name;
 		this.group = group;
 		this.adress = adress;
@@ -59,10 +71,18 @@ public class Student {
 		this.result = result;
 	}
 
+	public String getImgPath() {
+		return imgPath;
+	}
+
+	public void setImgPath(String imgPath) {
+		this.imgPath = imgPath;
+	}
+
 	@Override
 	public String toString() {
 		return "Student [name=" + name + ", group=" + group + ", adress=" + adress + ", city=" + city + ", result="
-				+ result + "]";
+				+ result + "imgPath=" + imgPath+"]";
 	}
 
 	@Override

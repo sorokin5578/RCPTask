@@ -1,15 +1,12 @@
 package rcptask.Action;
 
-import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.handlers.HandlerUtil;
 
 import rcptask.Activator;
 import rcptask.ICommandIds;
-import rcptask.command.StudentCommand;
 
 public class AddAction extends Action{
 	private final IWorkbenchWindow window;

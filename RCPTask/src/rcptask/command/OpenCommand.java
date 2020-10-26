@@ -7,14 +7,15 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Shell;
 
-public class OpenCommand extends AbstractHandler{
+public class OpenCommand extends AbstractHandler {
 
 	public static final String ID = "rcptask.command.openCommand";
-	
+
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		DirectoryDialog directoryDialog = new DirectoryDialog(new Shell(), SWT.OPEN);
-		directoryDialog.open();//TODO
+		directoryDialog.open();
+
 		return null;
 	}
 

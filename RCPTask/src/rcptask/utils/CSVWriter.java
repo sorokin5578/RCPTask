@@ -17,7 +17,6 @@ public class CSVWriter {
 
 		File groupDir = new File(groupPath);
 		if (!groupDir.exists()) {
-			System.out.println("create");
 			groupDir.mkdir();
 		}
 		try (BufferedWriter csvWriter = new BufferedWriter(new FileWriter(filePath))) {
@@ -31,6 +30,8 @@ public class CSVWriter {
 			csvWriter.append("City");
 			csvWriter.append(coma);
 			csvWriter.append("Result");
+			csvWriter.append(coma);
+			csvWriter.append("Image Path");
 			csvWriter.append("\n");
 			csvWriter.append(student.getName());
 			csvWriter.append(coma);
@@ -41,6 +42,8 @@ public class CSVWriter {
 			csvWriter.append(student.getCity());
 			csvWriter.append(coma);
 			csvWriter.append(String.valueOf(student.getResult()));
+			csvWriter.append(coma);
+			csvWriter.append(student.getImgPath()==null?"":student.getImgPath());
 			csvWriter.append("\n");
 			MessageDialog.openInformation(null, "Info", "Saving success.\nYour list in " + filePath);
 			return true;

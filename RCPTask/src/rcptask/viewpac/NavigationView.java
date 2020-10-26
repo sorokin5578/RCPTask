@@ -1,8 +1,6 @@
 package rcptask.viewpac;
 
 import java.io.File;
-import java.nio.file.Path;
-import java.util.Arrays;
 
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.JFaceResources;
@@ -31,6 +29,9 @@ public class NavigationView extends ViewPart {
 	private String path = "C:\\Users\\Illia\\git\\RCPTask\\RCPTask\\Folder";
 
 	public void createPartControl(Composite parent) {
+
+		System.err.println("navigation");
+		System.err.println(parent);		
 		File file = new File(path);
 		viewer = new TreeViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
 		viewer.setContentProvider(new ViewContentProvider());
@@ -46,6 +47,7 @@ public class NavigationView extends ViewPart {
 			}
 		});
 		viewer.setInput(new File(file.getParent()).listFiles());
+		getSite().setSelectionProvider(viewer);
 	}
 
 	class ViewContentProvider implements ITreeContentProvider {
@@ -158,6 +160,12 @@ public class NavigationView extends ViewPart {
 
 	public void setFocus() {
 		viewer.getControl().setFocus();
+	}
+	
+	public void refreshTree() {
+		System.out.println("refresh");
+		File file = new File(path);
+		viewer.setInput(new File(file.getParent()).listFiles());
 	}
 
 }

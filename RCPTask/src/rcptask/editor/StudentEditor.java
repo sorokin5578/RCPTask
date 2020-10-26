@@ -15,16 +15,17 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IEditorInput;
-import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.ui.part.EditorPart;
 
 import rcptask.Student;
 import rcptask.utils.CSVWriter;
 import rcptask.utils.ImgUtil;
+import rcptask.viewpac.NavigationView;
 import rcptask.viewpac.regexp.RegExp;
 
 public class StudentEditor extends EditorPart {
@@ -36,6 +37,7 @@ public class StudentEditor extends EditorPart {
 	private Text adressText;
 	private Text cityText;
 	private Text resulText;
+	private String path;
 
 	private boolean dirty;
 
@@ -46,8 +48,14 @@ public class StudentEditor extends EditorPart {
 	@Override
 	public void doSave(IProgressMonitor monitor) {
 		Student student = new Student(nameText.getText(), Integer.parseInt(groupText.getText()), adressText.getText(),
-				cityText.getText(), Integer.parseInt(resulText.getText()));
-		CSVWriter.writeCSVInFile(student);
+				cityText.getText(), Integer.parseInt(resulText.getText()), path);
+		
+		if(CSVWriter.writeCSVInFile(student)) {
+			IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+			NavigationView navigationView = (NavigationView) window.getActivePage().findView(NavigationView.ID);
+			navigationView.refreshTree();
+		}
+		
 	}
 
 	@Override
@@ -119,7 +127,7 @@ public class StudentEditor extends EditorPart {
 			public void mouseDown(MouseEvent e) {
 				FileDialog imgDialog = new FileDialog(new Shell(), SWT.OPEN);
 				setFilters(imgDialog);
-				String path = imgDialog.open();
+				path = imgDialog.open();
 				if (path != null) {
 					imgLabel.setImage(ImgUtil.getImage(null, path));
 				}

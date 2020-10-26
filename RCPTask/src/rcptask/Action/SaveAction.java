@@ -2,14 +2,7 @@ package rcptask.Action;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.swt.widgets.FileDialog;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.part.EditorPart;
-
-import java.io.FileWriter;
-import java.io.IOException;
-
 
 import rcptask.Activator;
 import rcptask.ICommandIds;

@@ -51,12 +51,22 @@
          <command
                defaultHandler="rcptask.command.StudentCommand"
                id="rcptask.command.studentCommand"
-               name="Call Student Editor">
+               name="OpenStudentEditor">
          </command>
          <command
                defaultHandler="rcptask.command.OpenCommand"
                id="rcptask.command.openCommand"
                name="OpenCommand">
+         </command>
+         <command
+               defaultHandler="rcptask.command.AboutCommand"
+               id="rcptask.command.aboutCommand"
+               name="AboutCommand">
+         </command>
+         <command
+               defaultHandler="rcptask.command.DeleteCommand"
+               id="rcptask.command.deleteCommand"
+               name="DeleteCommand">
          </command>
       </extension>
       <extension
@@ -70,12 +80,6 @@
                      commandId="rcptask.command.openCommand"
                      icon="icons/folder.png"
                      label="Open"
-                     style="push">
-               </command>
-               <command
-                     commandId="rcptask.command.studentCommand"
-                     icon="icons/add.png"
-                     label="Add"
                      style="push">
                </command>
                <command
@@ -104,7 +108,7 @@
                      style="push">
                </command>
                <command
-                     commandId="org.eclipse.ui.edit.delete"
+                     commandId="rcptask.command.deleteCommand"
                      icon="icons/bin_closed.png"
                      label="Delete"
                      style="push"
@@ -114,7 +118,8 @@
             <menu
                   label="Help">
                <command
-                     commandId="org.eclipse.ui.help.aboutAction"
+                     commandId="rcptask.command.aboutCommand"
+                     icon="icons/help.png"
                      label="About"
                      style="push">
                </command>
@@ -140,7 +145,7 @@
                      tooltip="Save student">
                </command>
                <command
-                     commandId="org.eclipse.ui.edit.delete"
+                     commandId="rcptask.command.deleteCommand"
                      icon="icons/bin_closed.png"
                      label="Delete"
                      style="push"

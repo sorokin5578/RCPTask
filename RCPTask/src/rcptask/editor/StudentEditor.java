@@ -9,26 +9,27 @@ import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IEditorInput;
-import org.eclipse.ui.IEditorSite;
+import org.eclipse.ui.IReusableEditor;
+import org.eclipse.ui.IWorkbenchPartConstants;
 import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.handlers.HandlerUtil;
-import org.eclipse.ui.part.EditorPart;
 
 import rcptask.Student;
+import rcptask.dirty.DirtyUtils;
+import rcptask.dirty.MyConstants;
 import rcptask.utils.CSVWriter;
 import rcptask.utils.ImgUtil;
 import rcptask.viewpac.NavigationView;
 import rcptask.viewpac.regexp.RegExp;
 
-public class StudentEditor extends EditorPart {
+public class StudentEditor extends AbstractBaseEditor implements IReusableEditor {
 
 	public static final String ID = "rcptask.editor.studentEditor";
 
@@ -37,61 +38,14 @@ public class StudentEditor extends EditorPart {
 	private Text adressText;
 	private Text cityText;
 	private Text resulText;
-	private String path;
-
-	private boolean dirty;
+	private Text pathText;
 
 	public StudentEditor() {
 
 	}
 
 	@Override
-	public void doSave(IProgressMonitor monitor) {
-		Student student = new Student(nameText.getText(), Integer.parseInt(groupText.getText()), adressText.getText(),
-				cityText.getText(), Integer.parseInt(resulText.getText()), path);
-		
-		if(CSVWriter.writeCSVInFile(student)) {
-			IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-			NavigationView navigationView = (NavigationView) window.getActivePage().findView(NavigationView.ID);
-			navigationView.refreshTree();
-		}
-		
-	}
-
-	@Override
-	public void doSaveAs() {
-
-	}
-
-	/**
-	 * Important!!!
-	 */
-	@Override
-	public void init(IEditorSite site, IEditorInput input) throws PartInitException {
-		if (!(input instanceof StudentEditorInput)) {
-			throw new PartInitException("Invalid Input: Must be " + StudentEditorInput.class.getName());
-		}
-		setSite(site);
-		setInput(input);
-	}
-
-	@Override
-	public boolean isDirty() {
-		return true;
-	}
-
-	private void setDirty(boolean dirty) {
-		System.err.println(dirty);
-		this.dirty = dirty;
-	}
-
-	@Override
-	public boolean isSaveAsAllowed() {
-		return false;
-	}
-
-	@Override
-	public void createPartControl(Composite parent) {
+	public void createPartControl2(Composite parent) {
 		Composite top = new Composite(parent, SWT.NONE);
 		top.setLayout(new GridLayout(2, true));
 		top.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
@@ -122,13 +76,19 @@ public class StudentEditor extends EditorPart {
 		Label imgLabel = new Label(imgComposite, SWT.NONE);
 		imgLabel.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, true, 1, 1));
 		imgLabel.setText("Click here to load your image");
+
+		pathText = new Text(imgComposite, SWT.NONE);
+		pathText.setVisible(false);
+
 		imgLabel.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseDown(MouseEvent e) {
 				FileDialog imgDialog = new FileDialog(new Shell(), SWT.OPEN);
 				setFilters(imgDialog);
-				path = imgDialog.open();
+				String path = imgDialog.open();
 				if (path != null) {
+
+					pathText.setText(path);
 					imgLabel.setImage(ImgUtil.getImage(null, path));
 				}
 			}
@@ -140,6 +100,64 @@ public class StudentEditor extends EditorPart {
 				dialog.setFilterExtensions(extension);
 			}
 		});
+
+		DirtyListenerImpl dirtyListener = new DirtyListenerImpl();
+		DirtyUtils.registryDirty(dirtyListener, this.nameText, this.groupText, this.adressText, this.cityText,
+				this.resulText, this.pathText);
+	}
+
+	@Override
+	public void doSave(IProgressMonitor monitor) {
+		Student student = new Student(nameText.getText(), Integer.parseInt(groupText.getText()), adressText.getText(),
+				cityText.getText(), Integer.parseInt(resulText.getText()), pathText.getText());
+
+		if (CSVWriter.writeCSVInFile(student)) {
+			IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+			NavigationView navigationView = (NavigationView) window.getActivePage().findView(NavigationView.ID);
+			navigationView.refreshTree();
+			this.setInput(new StudentEditorInput(student));
+			this.setDirty(false);
+			this.firePropertyChange(MyConstants.EDITOR_DATA_CHANGED);
+		}
+
+	}
+
+	@Override
+	protected Control[] registryDirtyControls() {
+		return new Control[] { this.nameText, this.groupText, this.adressText, this.cityText, this.resulText,
+				this.pathText };
+	}
+
+	@Override
+	public void showData() {
+		StudentEditorInput input = (StudentEditorInput) this.getEditorInput();
+		Student student = input.getStudent();
+
+		this.nameText.setText(student.getName() == null ? "" : student.getName());
+		this.groupText.setText(student.getName() == null ? "" : String.valueOf(student.getGroup()));
+		this.adressText.setText(student.getAdress() == null ? "" : student.getAdress());
+		this.cityText.setText(student.getCity() == null ? "" : student.getCity());
+		this.resulText.setText(student.getName() == null ? "" : String.valueOf(student.getResult()));
+		this.pathText.setText(student.getImgPath() == null ? "" : student.getImgPath());
+		// Clear dirty.
+		this.setDirty(false);
+	}
+
+	// Override setInput(..) with public (IReusableEditor)
+	@Override
+	public void setInput(IEditorInput input) {
+		super.setInput(input);
+		firePropertyChange(IWorkbenchPartConstants.PROP_INPUT);
+	}
+
+	public String getDeptInfo() {
+		StudentEditorInput input = (StudentEditorInput) this.getEditorInput();
+		Student student = input.getStudent();
+		if (student == null) {
+			return "";
+		}
+		String info = "information";
+		return info;
 	}
 
 	private Label initNewLabel(Composite parent, String text) {

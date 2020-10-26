@@ -31,7 +31,7 @@ public class NavigationView extends ViewPart {
 	public void createPartControl(Composite parent) {
 
 		System.err.println("navigation");
-		System.err.println(parent);		
+		System.err.println(parent);
 		File file = new File(path);
 		viewer = new TreeViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
 		viewer.setContentProvider(new ViewContentProvider());

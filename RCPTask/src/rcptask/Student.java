@@ -5,10 +5,10 @@ import java.util.Objects;
 public class Student {
 
 	private String name;
-	private int group;
+	private Integer group;
 	private String adress;
 	private String city;
-	private int result;
+	private Integer result;
 	private String imgPath;
 
 	public Student() {
@@ -39,11 +39,11 @@ public class Student {
 		this.name = name;
 	}
 
-	public int getGroup() {
+	public Integer getGroup() {
 		return group;
 	}
 
-	public void setGroup(int group) {
+	public void setGroup(Integer group) {
 		this.group = group;
 	}
 
@@ -63,11 +63,11 @@ public class Student {
 		this.city = city;
 	}
 
-	public int getResult() {
+	public Integer getResult() {
 		return result;
 	}
 
-	public void setResult(int result) {
+	public void setResult(Integer result) {
 		this.result = result;
 	}
 

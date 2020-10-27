@@ -1,4 +1,4 @@
-package rcptask.Action;
+package rcptask.action;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.dialogs.MessageDialog;

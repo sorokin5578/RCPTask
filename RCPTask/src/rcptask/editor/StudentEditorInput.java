@@ -8,16 +8,16 @@ import rcptask.Student;
 
 public class StudentEditorInput implements IEditorInput {
 
-	  private Student student;
-	  
-	  public StudentEditorInput(Student student) {
-	      this.student = student;
-	  }
-	 
-	  public Student getStudent() {
-	      return student;
-	  }
-	
+	private Student student;
+
+	public StudentEditorInput(Student student) {
+		this.student = student;
+	}
+
+	public Student getStudent() {
+		return student;
+	}
+
 	@Override
 	public <T> T getAdapter(Class<T> adapter) {
 		return null;
@@ -35,7 +35,7 @@ public class StudentEditorInput implements IEditorInput {
 
 	@Override
 	public String getName() {
-		return "Student";
+		return student != null ? student.getName() : "Student";
 	}
 
 	@Override

@@ -9,10 +9,15 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.ui.ISelectionService;
+import org.eclipse.ui.IViewPart;
+import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.handlers.HandlerUtil;
 
 import rcptask.viewpac.NavigationView;
@@ -22,23 +27,27 @@ public class DeleteCommand extends AbstractHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		IWorkbenchWindow window = HandlerUtil.getActiveWorkbenchWindow(event);
-		ISelection selection = HandlerUtil.getCurrentSelection(event);
-		Composite composite = window.getShell().getParent();
-
-		Object selectObj = null;
+//		IWorkbenchWindow window = HandlerUtil.getActiveWorkbenchWindow(event);
+//		ISelection selection = HandlerUtil.getCurrentSelection(event);
+		IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+		IViewPart part = window.getActivePage().findView(NavigationView.ID);
+		IViewSite viewSite = part.getViewSite();
+		ISelectionProvider provider = viewSite.getSelectionProvider();
+		ISelection selection = provider.getSelection();
 		
+		Object selectObj = null;
+
 		if (selection != null && !selection.isEmpty() && selection instanceof IStructuredSelection) {
 			selectObj = ((IStructuredSelection) selection).getFirstElement();
 			File file = (File) selectObj;
-			String msg = String.format("Confirm to delete the %s %s", file.getName(),
-					file.isDirectory() ? "folder" : "file");
+			String msg = String.format("Confirm to delete the %s %s", file.getName(), "file");
 			if (!file.isDirectory() && MessageDialog.openConfirm(window.getShell(), "Deletion", msg)) {
 				try {
-					if(Files.deleteIfExists(file.toPath())) {
-						MessageDialog.openInformation(window.getShell(), "Info", "Deleted successfully");
-						NavigationView navigationView = (NavigationView) window.getActivePage().findView(NavigationView.ID);
+					if (Files.deleteIfExists(file.toPath())) {
+						NavigationView navigationView = (NavigationView) window.getActivePage()
+								.findView(NavigationView.ID);
 						navigationView.refreshTree();
+						MessageDialog.openInformation(window.getShell(), "Info", "Deleted successfully");
 					}
 				} catch (IOException e) {
 					e.printStackTrace();

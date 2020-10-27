@@ -1,6 +1,7 @@
 package rcptask.editor;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -39,6 +40,7 @@ public class StudentEditor extends AbstractBaseEditor implements IReusableEditor
 	private Text cityText;
 	private Text resulText;
 	private Text pathText;
+	private Label imgLabel;
 
 	public StudentEditor() {
 
@@ -73,7 +75,7 @@ public class StudentEditor extends AbstractBaseEditor implements IReusableEditor
 		imgComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		imgComposite.setLayout(new GridLayout(1, true));
 
-		Label imgLabel = new Label(imgComposite, SWT.NONE);
+		imgLabel = new Label(imgComposite, SWT.NONE);
 		imgLabel.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, true, 1, 1));
 		imgLabel.setText("Click here to load your image");
 
@@ -87,9 +89,13 @@ public class StudentEditor extends AbstractBaseEditor implements IReusableEditor
 				setFilters(imgDialog);
 				String path = imgDialog.open();
 				if (path != null) {
-
-					pathText.setText(path);
-					imgLabel.setImage(ImgUtil.getImage(null, path));
+					try {
+						imgLabel.setImage(ImgUtil.getImage(null, path));
+						pathText.setText(path);
+					} catch (Exception e1) {
+						imgLabel.setText("Can not find your image");
+						pathText.setText("");
+					}
 				}
 			}
 
@@ -108,17 +114,31 @@ public class StudentEditor extends AbstractBaseEditor implements IReusableEditor
 
 	@Override
 	public void doSave(IProgressMonitor monitor) {
-		Student student = new Student(nameText.getText(), Integer.parseInt(groupText.getText()), adressText.getText(),
-				cityText.getText(), Integer.parseInt(resulText.getText()), pathText.getText());
+		IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+		if (checkDataValid()) {
+			Student student = new Student(nameText.getText(), Integer.parseInt(groupText.getText()),
+					adressText.getText(), cityText.getText(), Integer.parseInt(resulText.getText()),
+					pathText.getText());
 
-		if (CSVWriter.writeCSVInFile(student)) {
-			IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-			NavigationView navigationView = (NavigationView) window.getActivePage().findView(NavigationView.ID);
-			navigationView.refreshTree();
-			this.setInput(new StudentEditorInput(student));
-			this.setDirty(false);
-			this.firePropertyChange(MyConstants.EDITOR_DATA_CHANGED);
+			if (CSVWriter.writeCSVInFile(student)) {
+				NavigationView navigationView = (NavigationView) window.getActivePage().findView(NavigationView.ID);
+				navigationView.refreshTree();
+				this.setInput(new StudentEditorInput(student));
+				this.setDirty(false);
+				this.firePropertyChange(MyConstants.EDITOR_DATA_CHANGED);
+			}
+		} else {
+			MessageDialog.openInformation(window.getShell(), "Info", "Wrong input!");
 		}
+
+	}
+
+	private boolean checkDataValid() {
+		return nameText != null && nameText.getText().length() > 0 
+				&& groupText != null && groupText.getText().length() > 0 
+				&& adressText != null && adressText.getText().length() > 0
+				&& cityText != null && cityText.getText().length() > 0 
+				&& resulText != null && resulText.getText().length() > 0;
 
 	}
 
@@ -133,12 +153,21 @@ public class StudentEditor extends AbstractBaseEditor implements IReusableEditor
 		StudentEditorInput input = (StudentEditorInput) this.getEditorInput();
 		Student student = input.getStudent();
 
-		this.nameText.setText(student.getName() == null ? "" : student.getName());
-		this.groupText.setText(student.getName() == null ? "" : String.valueOf(student.getGroup()));
-		this.adressText.setText(student.getAdress() == null ? "" : student.getAdress());
-		this.cityText.setText(student.getCity() == null ? "" : student.getCity());
-		this.resulText.setText(student.getName() == null ? "" : String.valueOf(student.getResult()));
-		this.pathText.setText(student.getImgPath() == null ? "" : student.getImgPath());
+		nameText.setText(student.getName() == null ? "" : student.getName());
+		groupText.setText(student.getName() == null ? "" : String.valueOf(student.getGroup()));
+		adressText.setText(student.getAdress() == null ? "" : student.getAdress());
+		cityText.setText(student.getCity() == null ? "" : student.getCity());
+		resulText.setText(student.getName() == null ? "" : String.valueOf(student.getResult()));
+		pathText.setText(student.getImgPath() == null ? "" : student.getImgPath());
+		if (student.getImgPath() != null) {
+			try {
+				imgLabel.setImage(ImgUtil.getImage(null, student.getImgPath()));
+				pathText.setText(student.getImgPath());
+			} catch (Exception e) {
+				imgLabel.setText("Can not find your image");
+				pathText.setText("");
+			}
+		}
 		// Clear dirty.
 		this.setDirty(false);
 	}
@@ -172,7 +201,7 @@ public class StudentEditor extends AbstractBaseEditor implements IReusableEditor
 		text.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
 		text.setMessage(msg);
 		text.setToolTipText(toolTip);
-		text.addModifyListener(new CustomModifyListenerForText());
+//		text.addModifyListener(new CustomModifyListenerForText());
 		return text;
 	}
 

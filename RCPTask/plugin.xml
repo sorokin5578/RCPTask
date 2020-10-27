@@ -22,13 +22,6 @@
       <extension
          point="org.eclipse.ui.views">
       <view
-            name="Student"
-            allowMultiple="true"
-            icon="icons/eclipse16.png"
-            class="rcptask.viewpac.StudentView"
-            id="rcptask.viewpac.view">
-      </view>
-      <view
             name="Tree"
             allowMultiple="true"
             icon="icons/eclipse16.png"
@@ -43,7 +36,7 @@
                default="false"
                icon="icons/eclipse16.png"
                id="rcptask.editor.studentEditor"
-               name="StudentEditor">
+               name="StudEditor">
          </editor>
       </extension>
       <extension
@@ -160,5 +153,6 @@
             </toolbar>
          </menuContribution>
       </extension>
+      
 
 </plugin>

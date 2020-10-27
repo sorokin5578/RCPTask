@@ -13,6 +13,7 @@ public class Perspective implements IPerspectiveFactory {
 	public void createInitialLayout(IPageLayout layout) {
 		String editorArea = layout.getEditorArea();
 		layout.setEditorAreaVisible(false);
+		layout.setFixed(true);
 		
 		layout.addStandaloneView(NavigationView.ID,  false, IPageLayout.LEFT, 0.25f, editorArea);
 		IFolderLayout folder = layout.createFolder("Students", IPageLayout.TOP, 0.5f, editorArea);

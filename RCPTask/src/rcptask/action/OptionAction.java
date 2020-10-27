@@ -1,4 +1,4 @@
-package rcptask.Action;
+package rcptask.action;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -6,25 +6,23 @@ import org.eclipse.ui.IWorkbenchWindow;
 
 import rcptask.Activator;
 import rcptask.ICommandIds;
+import rcptask.command.StudentCommand;
 
-public class DeleteAction extends Action{
+public class OptionAction extends Action{
 	private final IWorkbenchWindow window;
-	private final String viewId;
 	
-	public DeleteAction(IWorkbenchWindow window, String label, String viewId) {
+	public OptionAction(IWorkbenchWindow window, String label, String iconPath) {
 		this.window = window;
-		this.viewId = viewId;
         setText(label);
-		setId(ICommandIds.CMD_DELETE);
-//		setActionDefinitionId(ICommandIds.CMD_OPEN);
-		setImageDescriptor(Activator.getImageDescriptor("/icons/bin_closed.png"));
+		setImageDescriptor(Activator.getImageDescriptor(iconPath));
 	}
+	
 	
 	@Override
 	public void run() {
 		if(window != null) {	
 			try {
-				MessageDialog.openInformation(window.getShell(), "Confirm", "DELETE");//TODO
+					MessageDialog.openConfirm(window.getShell(), "Info", getText());
 			} catch (Exception e) {
 				MessageDialog.openError(window.getShell(), "Error", "Error opening view:" + e.getMessage());
 			}

@@ -7,11 +7,14 @@ import java.io.IOException;
 import rcptask.Student;
 
 public class CSVReader {
-	public static Student readStudentListFromCSV(String pathToCsv, String split)
+	private CSVReader() {
+	}
+
+	public static Student readStudentFromCSV(String pathToCsv, String split)
 			throws IOException, NumberFormatException, Exception {
 		try (BufferedReader csvReader = new BufferedReader(new FileReader(pathToCsv))) {
 			String row;
-			Student student = null;
+			Student student = new Student();
 			boolean flag = true;
 			while ((row = csvReader.readLine()) != null) {
 				if (flag) {
@@ -19,8 +22,14 @@ public class CSVReader {
 					continue;
 				}
 				String[] data = row.split(split);
-				student = new Student(data[0].trim(), Integer.parseInt(data[1].trim()), data[2].trim(),
-						data[3].trim(), Integer.parseInt(data[4].trim()));
+				student.setName(data[0].trim());
+				student.setGroup(Integer.parseInt(data[1].trim()));
+				student.setAdress(data[2].trim());
+				student.setCity(data[3].trim());
+				student.setResult(Integer.parseInt(data[4].trim()));
+				if (data.length == 6) {
+					student.setImgPath(data[5].trim());
+				}
 			}
 			return student;
 		} catch (IOException | NumberFormatException e) {
@@ -29,9 +38,8 @@ public class CSVReader {
 			throw e;
 		}
 	}
-	
-	public static Student readStudentListFromCSV(String pathToCsv)
-			throws NumberFormatException, IOException, Exception {
-		return readStudentListFromCSV(pathToCsv, ",");
+
+	public static Student readStudentFromCSV(String pathToCsv) throws NumberFormatException, IOException, Exception {
+		return readStudentFromCSV(pathToCsv, ",");
 	}
 }

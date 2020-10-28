@@ -4,8 +4,6 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.VerifyEvent;
-import org.eclipse.swt.events.VerifyListener;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Text;
@@ -13,6 +11,8 @@ import org.eclipse.swt.widgets.Text;
 import rcptask.viewpac.regexp.RegExp;
 
 public class DirtyUtils {
+	private DirtyUtils() {
+	}
 
 	public static void registryDirty(DirtyListener listener, Control... controls) {
 		if (controls == null) {
@@ -24,8 +24,7 @@ public class DirtyUtils {
 			if (control instanceof Text) {
 				Text text = (Text) control;
 				text.addModifyListener(new CustomModifyListenerForText(listener));
-			}
-			else {
+			} else {
 				throw new UnsupportedOperationException("Not support for " + control.getClass().getSimpleName());
 			}
 		}
@@ -43,14 +42,16 @@ public class DirtyUtils {
 		@Override
 		public void modifyText(ModifyEvent e) {
 			Text text = (Text) e.getSource();
-			if (isInputDataValid(text.getText(), text.getMessage()) || text.getText().length() == 0) {
-				text.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
-				isMsgWasShown=false;
-			} else {
-				text.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_RED));
-				if (!isMsgWasShown) {
-					MessageDialog.openWarning(null, "Warning", "Wrong input!\nСheck the field hint");
-					isMsgWasShown = true;
+			if (text.getMessage().length() > 0) {
+				if (isInputDataValid(text.getText(), text.getMessage()) || text.getText().length() == 0) {
+					text.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
+					isMsgWasShown = false;
+				} else {
+					text.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_RED));
+					if (!isMsgWasShown) {
+						MessageDialog.openWarning(null, "Warning", "Wrong input!\nСheck the field hint");
+						isMsgWasShown = true;
+					}
 				}
 			}
 			listener.fireDirty();

@@ -5,24 +5,25 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.ui.PlatformUI;
 
-import rcptask.Student;
-import rcptask.viewpac.NavigationView;
+import rcptask.entity.Student;
 
 public class CSVWriter {
+
+	private CSVWriter() {
+	}
+
 	public static boolean writeCSVInFile(Student newStudent, Student oldStudent, String folderPath) {
 		String groupPath = folderPath + "\\Group " + newStudent.getGroup();
 		String filePath = getAbsolutePath(folderPath, newStudent.getGroup(), newStudent.getName());
 
-		if ((!newStudent.getName().equals(oldStudent.getName())&&oldStudent.getName()!=null)
-				||(!newStudent.getGroup().equals(oldStudent.getGroup())&&oldStudent.getGroup()!=null)) {
+		if (!newStudent.equals(oldStudent) && (oldStudent.getName() != null || oldStudent.getGroup() != null)) {
 			try {
-				Files.deleteIfExists(Paths.get(getAbsolutePath(folderPath, oldStudent.getGroup(), oldStudent.getName())));
+				Files.deleteIfExists(
+						Paths.get(getAbsolutePath(folderPath, oldStudent.getGroup(), oldStudent.getName())));
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -33,7 +34,7 @@ public class CSVWriter {
 		if (!groupDir.exists()) {
 			groupDir.mkdir();
 		}
-		String msg = "Student " + newStudent.getName() + "already exists. Want to change data?";
+		String msg = "Student " + newStudent.getName() + " already exists. Want to change data?";
 		if (file.exists() && !MessageDialog.openConfirm(null, "Info", msg)) {
 			return false;
 		}
@@ -70,7 +71,7 @@ public class CSVWriter {
 		}
 		return false;
 	}
-	
+
 	private static String getAbsolutePath(String folderPath, Integer studentGroup, String studentName) {
 		return String.format("%s\\Group %d\\%s.csv", folderPath, studentGroup, studentName);
 	}

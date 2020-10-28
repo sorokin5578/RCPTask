@@ -4,9 +4,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class RegExp {
+	
+	private RegExp() {}
+	
 	private static final Pattern NAME_PATTERN = Pattern.compile("^([a-zA-Zа-яА-ЯёЁ]+\\s?)+$");
 	private static final Pattern GROUP_PATTERN = Pattern.compile("^[1-9]+0*[0-9]*$");
-	private static final Pattern ADRESS_PATTERN = Pattern.compile("^([a-zA-Zа-яА-ЯёЁ0-9]+,?\\s?)+$");
+	private static final Pattern ADRESS_PATTERN = Pattern.compile("^([a-zA-Zа-яА-ЯёЁ0-9]+\\s?)+$");
 	private static final Pattern CITY_PATTERN = Pattern.compile("^([a-zA-Zа-яА-ЯёЁ\\-]+\\s?\\-?)+$");
 	private static final Pattern RESULT_PATTERN = Pattern.compile("^[1-5]$");
 

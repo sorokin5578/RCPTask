@@ -16,7 +16,6 @@ public class AddAction extends Action {
 	@Override
 	public void run() {
 		try {
-			System.out.println("action add");
 			new StudentCommand().execute(null);
 		} catch (ExecutionException e) {
 			e.printStackTrace();

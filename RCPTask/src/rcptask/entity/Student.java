@@ -1,4 +1,4 @@
-package rcptask;
+package rcptask.entity;
 
 import java.util.Objects;
 
@@ -10,7 +10,6 @@ public class Student {
 	private String city;
 	private Integer result;
 	private String imgPath;
-	private String filePath;
 
 	public Student() {
 	}
@@ -79,14 +78,6 @@ public class Student {
 	public void setImgPath(String imgPath) {
 		this.imgPath = imgPath;
 	}
-	
-	public String getFilePath() {
-		return filePath;
-	}
-
-	public void setFilePath(String filePath) {
-		this.filePath = filePath;
-	}
 
 	@Override
 	public String toString() {
@@ -101,9 +92,7 @@ public class Student {
 		}
 		if (obj instanceof Student) {
 			Student student = (Student) obj;
-			return getName().equals(student.getName()) 
-					&& getCity().equals(student.getCity())
-					&& getAdress().equals(student.getAdress()) 
+			return getName().equals(student.getName())
 					&& getGroup() == student.getGroup();
 		}
 		return false;
@@ -111,7 +100,7 @@ public class Student {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(name, group, adress, city);
+		return Objects.hash(name, group);
 	}
 
 }

@@ -16,7 +16,6 @@ public class DeleteAction extends Action {
 	@Override
 	public void run() {
 		try {
-			System.out.println("action del");
 			new DeleteCommand().execute(null);
 		} catch (ExecutionException e) {
 			e.printStackTrace();

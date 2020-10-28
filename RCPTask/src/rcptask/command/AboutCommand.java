@@ -9,7 +9,7 @@ import org.eclipse.ui.PlatformUI;
 
 public class AboutCommand extends AbstractHandler {
 	public static final String ID = "rcptask.command.aboutCommand";
-	
+
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();

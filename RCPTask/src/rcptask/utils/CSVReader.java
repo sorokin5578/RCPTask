@@ -4,7 +4,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
-import rcptask.Student;
+import rcptask.entity.Student;
 
 public class CSVReader {
 	private CSVReader() {

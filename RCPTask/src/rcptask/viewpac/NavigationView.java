@@ -2,9 +2,15 @@ package rcptask.viewpac;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.MultiStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.JFaceResources;
@@ -33,24 +39,20 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorReference;
-import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.commands.ICommandService;
-import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.part.ViewPart;
 
 import rcptask.Activator;
-import rcptask.Student;
 import rcptask.action.AddAction;
 import rcptask.action.DeleteAction;
 import rcptask.action.OptionAction;
-import rcptask.command.OpenCommand;
 import rcptask.editor.StudentEditor;
 import rcptask.editor.StudentEditorInput;
+import rcptask.entity.Student;
 import rcptask.utils.CSVReader;
 
 public class NavigationView extends ViewPart {
@@ -58,15 +60,43 @@ public class NavigationView extends ViewPart {
 	private TreeViewer viewer;
 	private String path;
 
+	@Override
 	public void createPartControl(Composite parent) {
-		IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 		
+
 		viewer = new TreeViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
 		viewer.setContentProvider(new ViewContentProvider());
 		viewer.setLabelProvider(new DelegatingStyledCellLabelProvider(new ViewLabelProvider()));
 
 		addContextMenu();
+		initDragAndDrop();
 
+
+		getSite().setSelectionProvider(viewer);
+	}
+
+	private void addContextMenu() {
+		String iconPath = "/icons/eclipse16.png";
+		MenuManager menuManager = new MenuManager();
+		Menu menu = menuManager.createContextMenu(viewer.getTree());
+		menuManager.add(new AddAction());
+		menuManager.add(new DeleteAction());
+		menuManager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
+		menuManager.add(new OptionAction(PlatformUI.getWorkbench().getActiveWorkbenchWindow(), "Option 1", iconPath));
+		menuManager.add(new OptionAction(PlatformUI.getWorkbench().getActiveWorkbenchWindow(), "Option 2", iconPath));
+		menuManager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
+
+		MenuManager subManager = new MenuManager("Submenu");
+		subManager.add(new OptionAction(PlatformUI.getWorkbench().getActiveWorkbenchWindow(), "Option 3", iconPath));
+		subManager.add(new OptionAction(PlatformUI.getWorkbench().getActiveWorkbenchWindow(), "Option 4", iconPath));
+		menuManager.add(subManager);
+
+		viewer.getTree().setMenu(menu);
+		getSite().registerContextMenu(menuManager, viewer);
+	}
+	
+	public void initDragAndDrop() {
+		IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 		DragSource ds = new DragSource(viewer.getTree(), DND.DROP_MOVE);
 		ds.setTransfer(new Transfer[] { TextTransfer.getInstance() });
 		ds.addDragListener(new DragSourceAdapter() {
@@ -85,13 +115,12 @@ public class NavigationView extends ViewPart {
 			public void drop(DropTargetEvent event) {
 				IWorkbenchPage page = window.getActivePage();
 				File fileToRead = new File(event.data.toString());
-				if(!fileToRead.isDirectory()) {
+				if (!fileToRead.isDirectory()) {
 					Student student = new Student();
 					try {
 						student = CSVReader.readStudentFromCSV(fileToRead.getAbsolutePath());
-						student.setFilePath(fileToRead.getAbsolutePath());
 					} catch (NumberFormatException | IOException e) {
-						// TODO
+						createErrorDialog(e, window);
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
@@ -102,12 +131,13 @@ public class NavigationView extends ViewPart {
 						IEditorReference[] eRefs = page.getEditorReferences();
 						for (IEditorReference ref : eRefs) {
 							IEditorPart editor = ref.getEditor(false);
-							if (editor != null && editor instanceof StudentEditor) {
-								// Restore
+							if (editor instanceof StudentEditor) {
 								StudentEditor studentEditor = (StudentEditor) ref.getEditor(true);
-								if(studentEditor.getPartName().equals(student.getName())) {
+								Student studentFromInput = ((StudentEditorInput)studentEditor.getEditorInput()).getStudent();
+								if (student.equals(studentFromInput)) {
 									found = true;
-									MessageDialog.openInformation(window.getShell(), "Info", "This Student is already open.");
+									MessageDialog.openInformation(window.getShell(), "Info",
+											"This Student is already open.");
 									break;
 								}
 							}
@@ -120,36 +150,12 @@ public class NavigationView extends ViewPart {
 							throw new RuntimeException(e);
 						}
 					}
-				}else {
-					MessageDialog.openInformation(window.getShell(), "Info", "You can not open the folder!\nTry open Student.");
+				} else {
+					MessageDialog.openInformation(window.getShell(), "Info",
+							"You can not open the folder!\nTry open Student.");
 				}
 			}
 		});
-
-		getSite().setSelectionProvider(viewer);
-	}
-
-	private void addContextMenu() {
-		MenuManager menuManager = new MenuManager();
-		Menu menu = menuManager.createContextMenu(viewer.getTree());
-		menuManager.add(new AddAction());
-		menuManager.add(new DeleteAction());
-		menuManager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
-		menuManager.add(new OptionAction(PlatformUI.getWorkbench().getActiveWorkbenchWindow(), "Option 1",
-				"/icons/eclipse16.png"));
-		menuManager.add(new OptionAction(PlatformUI.getWorkbench().getActiveWorkbenchWindow(), "Option 2",
-				"/icons/eclipse16.png"));
-		menuManager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
-
-		MenuManager subManager = new MenuManager("Submenu");
-		subManager.add(new OptionAction(PlatformUI.getWorkbench().getActiveWorkbenchWindow(), "Option 3",
-				"/icons/eclipse16.png"));
-		subManager.add(new OptionAction(PlatformUI.getWorkbench().getActiveWorkbenchWindow(), "Option 4",
-				"/icons/eclipse16.png"));
-		menuManager.add(subManager);
-
-		viewer.getTree().setMenu(menu);
-		getSite().registerContextMenu(menuManager, viewer);
 	}
 
 	class ViewContentProvider implements ITreeContentProvider {
@@ -191,10 +197,7 @@ public class NavigationView extends ViewPart {
 		@Override
 		public boolean hasChildren(Object element) {
 			File file = (File) element;
-			if (file.isDirectory()) {
-				return true;
-			}
-			return false;
+			return file.isDirectory();
 		}
 
 	}
@@ -240,7 +243,6 @@ public class NavigationView extends ViewPart {
 
 		@Override
 		public void dispose() {
-			// garbage collect system resources
 			if (resourceManager != null) {
 				resourceManager.dispose();
 				resourceManager = null;
@@ -275,6 +277,21 @@ public class NavigationView extends ViewPart {
 
 	public void setPath(String path) {
 		this.path = path;
+	}
+	
+	public void createErrorDialog(Throwable t, IWorkbenchWindow window) {
+
+		List<Status> childStatuses = new ArrayList<>();
+		StackTraceElement[] stackTraces = Thread.currentThread().getStackTrace();
+
+		for (StackTraceElement stackTrace : stackTraces) {
+			Status status = new Status(IStatus.ERROR, "JFaceTask", stackTrace.toString());
+			childStatuses.add(status);
+		}
+		MultiStatus status = new MultiStatus("JFaceTask", IStatus.ERROR, childStatuses.toArray(new Status[] {}),
+				t.toString(), t);
+		ErrorDialog.openError(window.getShell(), "Error", "This is an error", status);
+
 	}
 
 }

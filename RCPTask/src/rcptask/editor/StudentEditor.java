@@ -5,8 +5,6 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.fieldassist.ControlDecoration;
 import org.eclipse.jface.fieldassist.FieldDecorationRegistry;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.graphics.Image;
@@ -14,7 +12,6 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
@@ -25,13 +22,11 @@ import org.eclipse.ui.IWorkbenchPartConstants;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 
-import rcptask.Student;
-import rcptask.dirty.DirtyUtils;
 import rcptask.dirty.MyConstants;
+import rcptask.entity.Student;
 import rcptask.utils.CSVWriter;
 import rcptask.utils.ImgUtil;
 import rcptask.viewpac.NavigationView;
-import rcptask.viewpac.regexp.RegExp;
 
 public class StudentEditor extends AbstractBaseEditor implements IReusableEditor {
 
@@ -51,6 +46,9 @@ public class StudentEditor extends AbstractBaseEditor implements IReusableEditor
 		top.setLayout(new GridLayout(2, true));
 		top.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 
+		//
+		// Text part
+		//
 		Composite textComposite = new Composite(top, SWT.NONE);
 		textComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		textComposite.setLayout(new GridLayout(3, false));
@@ -70,6 +68,13 @@ public class StudentEditor extends AbstractBaseEditor implements IReusableEditor
 		initNewLabel(textComposite, "Result");
 		resulText = initNewText(textComposite, "Result", "Insert result", "Enter one number from 1 to 5");
 
+		//
+		// End Text part
+		//
+
+		//
+		// Image part
+		//
 		Composite imgComposite = new Composite(top, SWT.NONE);
 		imgComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		imgComposite.setLayout(new GridLayout(1, true));
@@ -81,47 +86,26 @@ public class StudentEditor extends AbstractBaseEditor implements IReusableEditor
 		pathText = new Text(imgComposite, SWT.NONE);
 		pathText.setVisible(false);
 
-		imgLabel.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseDown(MouseEvent e) {
-				FileDialog imgDialog = new FileDialog(new Shell(), SWT.OPEN);
-				setFilters(imgDialog);
-				String path = imgDialog.open();
-				if (path != null) {
-					try {
-						imgLabel.setImage(ImgUtil.getImage(null, path));
-						pathText.setText(path);
-					} catch (Exception e1) {
-						imgLabel.setText("Can not find your image");
-						pathText.setText("");
-					}
-				}
-			}
+		imgLabel.addMouseListener(new CustomMouseListener());
+		//
+		// End Image part
+		//
+	}
 
-			public void setFilters(FileDialog dialog) {
-				String[] name = { "Файлы PNG (*.png)", "Файлы JPG (*.jpg)" };
-				String[] extension = { "*.png", "*.jpg" };
-				dialog.setFilterNames(name);
-				dialog.setFilterExtensions(extension);
-			}
-		});
-
-//		DirtyListenerImpl dirtyListener = new DirtyListenerImpl();
-//		DirtyUtils.registryDirty(dirtyListener, this.nameText, this.groupText, this.adressText, this.cityText,
-//				this.resulText, this.pathText);
+	@Override
+	public void setFocus() {
+		// empty
 	}
 
 	@Override
 	public void doSave(IProgressMonitor monitor) {
 		IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-		NavigationView navigationView = (NavigationView) window.getActivePage()
-				.findView(NavigationView.ID);
+		NavigationView navigationView = (NavigationView) window.getActivePage().findView(NavigationView.ID);
 		if (checkDataValid()) {
 			Student newStudent = new Student(nameText.getText(), Integer.parseInt(groupText.getText()),
 					adressText.getText(), cityText.getText(), Integer.parseInt(resulText.getText()),
 					pathText.getText());
-			Student oldStudent = ((StudentEditorInput)getEditorInput()).getStudent();
-
+			Student oldStudent = ((StudentEditorInput) getEditorInput()).getStudent();
 			if (CSVWriter.writeCSVInFile(newStudent, oldStudent, navigationView.getPath())) {
 				navigationView.refreshTree();
 				this.setInput(new StudentEditorInput(newStudent));
@@ -132,15 +116,6 @@ public class StudentEditor extends AbstractBaseEditor implements IReusableEditor
 		} else {
 			MessageDialog.openInformation(window.getShell(), "Info", "All fields must be filled!");
 		}
-
-	}
-
-	private boolean checkDataValid() {
-		return nameText != null && nameText.getText().length() > 0 && groupText != null
-				&& groupText.getText().length() > 0 && adressText != null && adressText.getText().length() > 0
-				&& cityText != null && cityText.getText().length() > 0 && resulText != null
-				&& resulText.getText().length() > 0;
-
 	}
 
 	@Override
@@ -151,11 +126,12 @@ public class StudentEditor extends AbstractBaseEditor implements IReusableEditor
 
 	@Override
 	public void showData() {
-		StudentEditorInput input = (StudentEditorInput) this.getEditorInput();
+		StudentEditorInput input = (StudentEditorInput) getEditorInput();
 		Student student = input.getStudent();
-		setPartName(student.getName() == null ? "New Student" : student.getName());
+		String name = student.getName();
+		setPartName(name == null ? "New Student" : name);
 
-		nameText.setText(student.getName() == null ? "" : student.getName());
+		nameText.setText(name == null ? "" : name);
 		groupText.setText(student.getName() == null ? "" : String.valueOf(student.getGroup()));
 		adressText.setText(student.getAdress() == null ? "" : student.getAdress());
 		cityText.setText(student.getCity() == null ? "" : student.getCity());
@@ -170,25 +146,13 @@ public class StudentEditor extends AbstractBaseEditor implements IReusableEditor
 				pathText.setText("");
 			}
 		}
-		// Clear dirty.
 		this.setDirty(false);
 	}
 
-	// Override setInput(..) with public (IReusableEditor)
 	@Override
 	public void setInput(IEditorInput input) {
 		super.setInput(input);
 		firePropertyChange(IWorkbenchPartConstants.PROP_INPUT);
-	}
-
-	public String getStudentInfo() {
-		StudentEditorInput input = (StudentEditorInput) this.getEditorInput();
-		Student student = input.getStudent();
-		if (student == null) {
-			return "";
-		}
-		String info = "information";
-		return info;
 	}
 
 	private Label initNewLabel(Composite parent, String text) {
@@ -217,9 +181,37 @@ public class StudentEditor extends AbstractBaseEditor implements IReusableEditor
 		return deco;
 	}
 
-	@Override
-	public void setFocus() {
+	private boolean checkDataValid() {
+		return nameText != null && nameText.getText().length() > 0 && groupText != null
+				&& groupText.getText().length() > 0 && adressText != null && adressText.getText().length() > 0
+				&& cityText != null && cityText.getText().length() > 0 && resulText != null
+				&& resulText.getText().length() > 0;
 
+	}
+
+	class CustomMouseListener extends MouseAdapter {
+		@Override
+		public void mouseDown(MouseEvent e) {
+			FileDialog imgDialog = new FileDialog(new Shell(), SWT.OPEN);
+			setFilters(imgDialog);
+			String path = imgDialog.open();
+			if (path != null) {
+				try {
+					imgLabel.setImage(ImgUtil.getImage(null, path));
+					pathText.setText(path);
+				} catch (Exception e1) {
+					imgLabel.setText("Can not find your image");
+					pathText.setText("");
+				}
+			}
+		}
+
+		public void setFilters(FileDialog dialog) {
+			String[] name = { "Файлы PNG (*.png)", "Файлы JPG (*.jpg)" };
+			String[] extension = { "*.png", "*.jpg" };
+			dialog.setFilterNames(name);
+			dialog.setFilterExtensions(extension);
+		}
 	}
 
 }

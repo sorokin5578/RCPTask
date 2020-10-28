@@ -4,7 +4,7 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IPersistableElement;
 
-import rcptask.Student;
+import rcptask.entity.Student;
 
 public class StudentEditorInput implements IEditorInput {
 
@@ -45,7 +45,7 @@ public class StudentEditorInput implements IEditorInput {
 
 	@Override
 	public String getToolTipText() {
-		return "STUDENT";
+		return "Student Tab";
 	}
 	
 	

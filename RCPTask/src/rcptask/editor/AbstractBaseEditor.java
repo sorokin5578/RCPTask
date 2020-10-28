@@ -23,6 +23,7 @@ public abstract class AbstractBaseEditor extends EditorPart {
        // Very Important!!
        setSite(site);
        setInput(input);
+       
    }
  
   

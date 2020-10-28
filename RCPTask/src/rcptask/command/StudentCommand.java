@@ -51,62 +51,64 @@ public class StudentCommand extends AbstractHandler {
 //		// get the selection
 //		ISelection selection = HandlerUtil.getCurrentSelection(event);
 
-		IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-		IWorkbenchPage page = window.getActivePage();
-		IViewPart part = window.getActivePage().findView(NavigationView.ID);
-		IViewSite viewSite = part.getViewSite();
-		ISelectionProvider provider = viewSite.getSelectionProvider();
-		ISelection selection = provider.getSelection();
-
-		Object selectObj = null;
-		Student student = new Student();
-
-		// Having selected on DeptListView
-		if (selection != null && !selection.isEmpty() && selection instanceof IStructuredSelection) {
-			selectObj = ((IStructuredSelection) selection).getFirstElement();
-			File fileToRead = (File) selectObj;
-			try {
-				student = CSVReader.readStudentFromCSV(fileToRead.getAbsolutePath());
-			} catch (NumberFormatException | IOException e) {
-				// TODO
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-
-		StudentEditorInput input = new StudentEditorInput(student);
+//		IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+//		IWorkbenchPage page = window.getActivePage();
+//		IViewPart part = window.getActivePage().findView(NavigationView.ID);
+//		IViewSite viewSite = part.getViewSite();
+//		ISelectionProvider provider = viewSite.getSelectionProvider();
+//		ISelection selection = provider.getSelection();
+//
+//		Object selectObj = null;
+//		Student student = new Student();
+//
+//		// Having selected on DeptListView
+//		if (selection != null && !selection.isEmpty() && selection instanceof IStructuredSelection) {
+//			selectObj = ((IStructuredSelection) selection).getFirstElement();
+//			File fileToRead = (File) selectObj;
+//			try {
+//				student = CSVReader.readStudentFromCSV(fileToRead.getAbsolutePath());
+//			} catch (NumberFormatException | IOException e) {
+//				// TODO
+//			} catch (Exception e) {
+//				e.printStackTrace();
+//			}
+//		}
+//
+//		StudentEditorInput input = new StudentEditorInput(student);
 //
 //		boolean found = false;
 //
-//		// Opening Editor references
-//		IEditorReference[] eRefs = page.getEditorReferences();
-//		for (IEditorReference ref : eRefs) {
-//			IEditorPart editor = ref.getEditor(false);
-//			if (editor != null && editor instanceof StudentEditor) {
-//				// Restore
-//				StudentEditor deptEditor = (StudentEditor) ref.getEditor(true);
-//				found = true;
-//
-//				boolean saved = true;
-//
-//				// If editor is dirty, save it.
-//				if (deptEditor.isDirty()) {
-//					saved = page.saveEditor(deptEditor, true);
-//				}
-//				if (saved) {
-//
-//					// Reset input for DeptEditor.
-//					page.reuseEditor(deptEditor, input);
-//					deptEditor.showData();
+//		if (student.getName() != null) {
+//			IEditorReference[] eRefs = page.getEditorReferences();
+//			for (IEditorReference ref : eRefs) {
+//				IEditorPart editor = ref.getEditor(false);
+//				if (editor != null && editor instanceof StudentEditor) {
+//					// Restore
+//					StudentEditor studentEditor = (StudentEditor) ref.getEditor(true);
+//					if(studentEditor.getPartName().equals(student.getName())) {
+//						found = true;
+//						break;
+//					}
 //				}
 //			}
 //		}
+//		if (!found) {
+//			try {
+//				page.openEditor(input, StudentEditor.ID);
+//			} catch (PartInitException e) {
+//				throw new RuntimeException(e);
+//			}
+//		}
+		
+		
+		IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+		IWorkbenchPage page = window.getActivePage();
+		StudentEditorInput input = new StudentEditorInput(new Student());
 		try {
 			page.openEditor(input, StudentEditor.ID);
 		} catch (PartInitException e) {
 			throw new RuntimeException(e);
 		}
-
 		return null;
 	}
 

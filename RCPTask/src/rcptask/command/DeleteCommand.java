@@ -40,18 +40,22 @@ public class DeleteCommand extends AbstractHandler {
 		if (selection != null && !selection.isEmpty() && selection instanceof IStructuredSelection) {
 			selectObj = ((IStructuredSelection) selection).getFirstElement();
 			File file = (File) selectObj;
-			String msg = String.format("Confirm to delete the %s %s", file.getName(), "file");
-			if (!file.isDirectory() && MessageDialog.openConfirm(window.getShell(), "Deletion", msg)) {
-				try {
-					if (Files.deleteIfExists(file.toPath())) {
-						NavigationView navigationView = (NavigationView) window.getActivePage()
-								.findView(NavigationView.ID);
-						navigationView.refreshTree();
-						MessageDialog.openInformation(window.getShell(), "Info", "Deleted successfully");
+			String msg = String.format("Confirm to delete the %s %s", file.getName().replaceFirst("[.][^.]+$", ""), "file");
+			if(!file.isDirectory()) {
+				if (MessageDialog.openConfirm(window.getShell(), "Deletion", msg)) {
+					try {
+						if (Files.deleteIfExists(file.toPath())) {
+							NavigationView navigationView = (NavigationView) window.getActivePage()
+									.findView(NavigationView.ID);
+							navigationView.refreshTree();
+							MessageDialog.openInformation(window.getShell(), "Info", "Deleted successfully");
+						}
+					} catch (IOException e) {
+						e.printStackTrace();
 					}
-				} catch (IOException e) {
-					e.printStackTrace();
 				}
+			}else {
+				MessageDialog.openInformation(window.getShell(), "Info", "You can not delete the folder!\nTry to select the Student to delete.");
 			}
 		}
 		return null;

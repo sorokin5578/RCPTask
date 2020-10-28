@@ -8,14 +8,15 @@ import rcptask.command.DeleteCommand;
 
 public class DeleteAction extends Action {
 
-	public DeleteAction(String label, String iconPath) {
-		setText(label);
-		setImageDescriptor(Activator.getImageDescriptor(iconPath));
+	public DeleteAction() {
+		super("Delete@Ctrl+D", AS_PUSH_BUTTON);
+		setImageDescriptor(Activator.getImageDescriptor("/icons/bin_closed.png"));
 	}
 
 	@Override
 	public void run() {
 		try {
+			System.out.println("action del");
 			new DeleteCommand().execute(null);
 		} catch (ExecutionException e) {
 			e.printStackTrace();

@@ -4,22 +4,40 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.ui.PlatformUI;
 
 import rcptask.Student;
+import rcptask.viewpac.NavigationView;
 
 public class CSVWriter {
-	public static boolean writeCSVInFile(Student student) {
-		String groupPath = "C:\\Users\\Illia\\git\\RCPTask\\RCPTask\\Folder\\Group " + student.getGroup();
-		String filePath = "C:\\Users\\Illia\\git\\RCPTask\\RCPTask\\Folder\\Group " + student.getGroup() + "\\"
-				+ student.getName() + ".csv";
+	public static boolean writeCSVInFile(Student newStudent, Student oldStudent, String folderPath) {
+		String groupPath = folderPath + "\\Group " + newStudent.getGroup();
+		String filePath = getAbsolutePath(folderPath, newStudent.getGroup(), newStudent.getName());
+
+		if ((!newStudent.getName().equals(oldStudent.getName())&&oldStudent.getName()!=null)
+				||(!newStudent.getGroup().equals(oldStudent.getGroup())&&oldStudent.getGroup()!=null)) {
+			try {
+				Files.deleteIfExists(Paths.get(getAbsolutePath(folderPath, oldStudent.getGroup(), oldStudent.getName())));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 
 		File groupDir = new File(groupPath);
+		File file = new File(filePath);
 		if (!groupDir.exists()) {
 			groupDir.mkdir();
 		}
-		try (BufferedWriter csvWriter = new BufferedWriter(new FileWriter(filePath))) {
+		String msg = "Student " + newStudent.getName() + "already exists. Want to change data?";
+		if (file.exists() && !MessageDialog.openConfirm(null, "Info", msg)) {
+			return false;
+		}
+		try (BufferedWriter csvWriter = new BufferedWriter(new FileWriter(file))) {
 			char coma = ',';
 			csvWriter.append("Name");
 			csvWriter.append(coma);
@@ -33,17 +51,17 @@ public class CSVWriter {
 			csvWriter.append(coma);
 			csvWriter.append("Image Path");
 			csvWriter.append("\n");
-			csvWriter.append(student.getName());
+			csvWriter.append(newStudent.getName());
 			csvWriter.append(coma);
-			csvWriter.append(String.valueOf(student.getGroup()));
+			csvWriter.append(String.valueOf(newStudent.getGroup()));
 			csvWriter.append(coma);
-			csvWriter.append(student.getAdress());
+			csvWriter.append(newStudent.getAdress());
 			csvWriter.append(coma);
-			csvWriter.append(student.getCity());
+			csvWriter.append(newStudent.getCity());
 			csvWriter.append(coma);
-			csvWriter.append(String.valueOf(student.getResult()));
+			csvWriter.append(String.valueOf(newStudent.getResult()));
 			csvWriter.append(coma);
-			csvWriter.append(student.getImgPath()==null?"":student.getImgPath());
+			csvWriter.append(newStudent.getImgPath() == null ? "" : newStudent.getImgPath());
 			csvWriter.append("\n");
 			MessageDialog.openInformation(null, "Info", "Saving success.\nYour list in " + filePath);
 			return true;
@@ -51,5 +69,9 @@ public class CSVWriter {
 			e.printStackTrace();
 		}
 		return false;
+	}
+	
+	private static String getAbsolutePath(String folderPath, Integer studentGroup, String studentName) {
+		return String.format("%s\\Group %d\\%s.csv", folderPath, studentGroup, studentName);
 	}
 }

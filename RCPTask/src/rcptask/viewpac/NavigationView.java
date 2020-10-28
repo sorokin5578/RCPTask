@@ -5,6 +5,7 @@ import java.io.IOException;
 
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.resource.LocalResourceManager;
@@ -30,6 +31,8 @@ import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.IWorkbenchPage;
@@ -53,11 +56,11 @@ import rcptask.utils.CSVReader;
 public class NavigationView extends ViewPart {
 	public static final String ID = "rcptask.viewpac.navigationView";
 	private TreeViewer viewer;
-	private String path = "C:\\Users\\Illia\\git\\RCPTask\\RCPTask\\Folder";
+	private String path;
 
 	public void createPartControl(Composite parent) {
 		IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-		File file = new File(path);
+		
 		viewer = new TreeViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
 		viewer.setContentProvider(new ViewContentProvider());
 		viewer.setLabelProvider(new DelegatingStyledCellLabelProvider(new ViewLabelProvider()));
@@ -71,10 +74,6 @@ public class NavigationView extends ViewPart {
 			public void dragSetData(DragSourceEvent event) {
 				IStructuredSelection selection = viewer.getStructuredSelection();
 				File file = (File) selection.getFirstElement();
-				if (file.isDirectory()) {
-					event.data = "directory";// TODO
-					return;
-				}
 				event.data = file.getAbsolutePath();
 			}
 		});
@@ -84,33 +83,57 @@ public class NavigationView extends ViewPart {
 		dt.addDropListener(new DropTargetAdapter() {
 			@Override
 			public void drop(DropTargetEvent event) {
+				IWorkbenchPage page = window.getActivePage();
 				File fileToRead = new File(event.data.toString());
-				Student student = new Student();
-				try {
-					student = CSVReader.readStudentFromCSV(fileToRead.getAbsolutePath());
-				} catch (NumberFormatException | IOException e) {
-					// TODO
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-				StudentEditorInput input = new StudentEditorInput(student);
-				try {
-					window.getActivePage().openEditor(input, StudentEditor.ID);
-				} catch (PartInitException e) {
-					throw new RuntimeException(e);
+				if(!fileToRead.isDirectory()) {
+					Student student = new Student();
+					try {
+						student = CSVReader.readStudentFromCSV(fileToRead.getAbsolutePath());
+						student.setFilePath(fileToRead.getAbsolutePath());
+					} catch (NumberFormatException | IOException e) {
+						// TODO
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+					StudentEditorInput input = new StudentEditorInput(student);
+					boolean found = false;
+
+					if (student.getName() != null) {
+						IEditorReference[] eRefs = page.getEditorReferences();
+						for (IEditorReference ref : eRefs) {
+							IEditorPart editor = ref.getEditor(false);
+							if (editor != null && editor instanceof StudentEditor) {
+								// Restore
+								StudentEditor studentEditor = (StudentEditor) ref.getEditor(true);
+								if(studentEditor.getPartName().equals(student.getName())) {
+									found = true;
+									MessageDialog.openInformation(window.getShell(), "Info", "This Student is already open.");
+									break;
+								}
+							}
+						}
+					}
+					if (!found) {
+						try {
+							page.openEditor(input, StudentEditor.ID);
+						} catch (PartInitException e) {
+							throw new RuntimeException(e);
+						}
+					}
+				}else {
+					MessageDialog.openInformation(window.getShell(), "Info", "You can not open the folder!\nTry open Student.");
 				}
 			}
 		});
 
 		getSite().setSelectionProvider(viewer);
-		viewer.setInput(new File(file.getParent()).listFiles());
 	}
 
 	private void addContextMenu() {
 		MenuManager menuManager = new MenuManager();
 		Menu menu = menuManager.createContextMenu(viewer.getTree());
-		menuManager.add(new AddAction("Add", "/icons/add.png"));
-		menuManager.add(new DeleteAction("Delete", "/icons/bin_closed.png"));
+		menuManager.add(new AddAction());
+		menuManager.add(new DeleteAction());
 		menuManager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
 		menuManager.add(new OptionAction(PlatformUI.getWorkbench().getActiveWorkbenchWindow(), "Option 1",
 				"/icons/eclipse16.png"));

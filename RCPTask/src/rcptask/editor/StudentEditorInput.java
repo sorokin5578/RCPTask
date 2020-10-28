@@ -35,7 +35,7 @@ public class StudentEditorInput implements IEditorInput {
 
 	@Override
 	public String getName() {
-		return student != null ? student.getName() : "Student";
+		return student != null ? student.getName() : "New Student";
 	}
 
 	@Override
@@ -45,7 +45,9 @@ public class StudentEditorInput implements IEditorInput {
 
 	@Override
 	public String getToolTipText() {
-		return "Student";
+		return "STUDENT";
 	}
+	
+	
 
 }

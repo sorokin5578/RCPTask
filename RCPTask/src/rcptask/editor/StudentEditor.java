@@ -2,11 +2,14 @@ package rcptask.editor;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.fieldassist.ControlDecoration;
+import org.eclipse.jface.fieldassist.FieldDecorationRegistry;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -42,10 +45,6 @@ public class StudentEditor extends AbstractBaseEditor implements IReusableEditor
 	private Text pathText;
 	private Label imgLabel;
 
-	public StudentEditor() {
-
-	}
-
 	@Override
 	public void createPartControl2(Composite parent) {
 		Composite top = new Composite(parent, SWT.NONE);
@@ -57,19 +56,19 @@ public class StudentEditor extends AbstractBaseEditor implements IReusableEditor
 		textComposite.setLayout(new GridLayout(3, false));
 
 		initNewLabel(textComposite, "Name");
-		nameText = initNewText(textComposite, "Name", "Insert name");
+		nameText = initNewText(textComposite, "Name", "Insert name", "Enter one or more words");
 
 		initNewLabel(textComposite, "Group");
-		groupText = initNewText(textComposite, "Group", "Insert group");
+		groupText = initNewText(textComposite, "Group", "Insert group", "Enter one number");
 
 		initNewLabel(textComposite, "Adress");
-		adressText = initNewText(textComposite, "Adress", "Insert adress");
+		adressText = initNewText(textComposite, "Adress", "Insert adress", "Enter the address using words and numbers");
 
 		initNewLabel(textComposite, "City");
-		cityText = initNewText(textComposite, "City", "Insert city");
+		cityText = initNewText(textComposite, "City", "Insert city", "Enter one or more words");
 
 		initNewLabel(textComposite, "Result");
-		resulText = initNewText(textComposite, "Result", "Insert result");
+		resulText = initNewText(textComposite, "Result", "Insert result", "Enter one number from 1 to 5");
 
 		Composite imgComposite = new Composite(top, SWT.NONE);
 		imgComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
@@ -107,38 +106,40 @@ public class StudentEditor extends AbstractBaseEditor implements IReusableEditor
 			}
 		});
 
-		DirtyListenerImpl dirtyListener = new DirtyListenerImpl();
-		DirtyUtils.registryDirty(dirtyListener, this.nameText, this.groupText, this.adressText, this.cityText,
-				this.resulText, this.pathText);
+//		DirtyListenerImpl dirtyListener = new DirtyListenerImpl();
+//		DirtyUtils.registryDirty(dirtyListener, this.nameText, this.groupText, this.adressText, this.cityText,
+//				this.resulText, this.pathText);
 	}
 
 	@Override
 	public void doSave(IProgressMonitor monitor) {
 		IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+		NavigationView navigationView = (NavigationView) window.getActivePage()
+				.findView(NavigationView.ID);
 		if (checkDataValid()) {
-			Student student = new Student(nameText.getText(), Integer.parseInt(groupText.getText()),
+			Student newStudent = new Student(nameText.getText(), Integer.parseInt(groupText.getText()),
 					adressText.getText(), cityText.getText(), Integer.parseInt(resulText.getText()),
 					pathText.getText());
+			Student oldStudent = ((StudentEditorInput)getEditorInput()).getStudent();
 
-			if (CSVWriter.writeCSVInFile(student)) {
-				NavigationView navigationView = (NavigationView) window.getActivePage().findView(NavigationView.ID);
+			if (CSVWriter.writeCSVInFile(newStudent, oldStudent, navigationView.getPath())) {
 				navigationView.refreshTree();
-				this.setInput(new StudentEditorInput(student));
+				this.setInput(new StudentEditorInput(newStudent));
 				this.setDirty(false);
 				this.firePropertyChange(MyConstants.EDITOR_DATA_CHANGED);
+				setPartName(newStudent.getName());
 			}
 		} else {
-			MessageDialog.openInformation(window.getShell(), "Info", "Wrong input!");
+			MessageDialog.openInformation(window.getShell(), "Info", "All fields must be filled!");
 		}
 
 	}
 
 	private boolean checkDataValid() {
-		return nameText != null && nameText.getText().length() > 0 
-				&& groupText != null && groupText.getText().length() > 0 
-				&& adressText != null && adressText.getText().length() > 0
-				&& cityText != null && cityText.getText().length() > 0 
-				&& resulText != null && resulText.getText().length() > 0;
+		return nameText != null && nameText.getText().length() > 0 && groupText != null
+				&& groupText.getText().length() > 0 && adressText != null && adressText.getText().length() > 0
+				&& cityText != null && cityText.getText().length() > 0 && resulText != null
+				&& resulText.getText().length() > 0;
 
 	}
 
@@ -152,6 +153,7 @@ public class StudentEditor extends AbstractBaseEditor implements IReusableEditor
 	public void showData() {
 		StudentEditorInput input = (StudentEditorInput) this.getEditorInput();
 		Student student = input.getStudent();
+		setPartName(student.getName() == null ? "New Student" : student.getName());
 
 		nameText.setText(student.getName() == null ? "" : student.getName());
 		groupText.setText(student.getName() == null ? "" : String.valueOf(student.getGroup()));
@@ -179,7 +181,7 @@ public class StudentEditor extends AbstractBaseEditor implements IReusableEditor
 		firePropertyChange(IWorkbenchPartConstants.PROP_INPUT);
 	}
 
-	public String getDeptInfo() {
+	public String getStudentInfo() {
 		StudentEditorInput input = (StudentEditorInput) this.getEditorInput();
 		Student student = input.getStudent();
 		if (student == null) {
@@ -196,46 +198,23 @@ public class StudentEditor extends AbstractBaseEditor implements IReusableEditor
 		return label;
 	}
 
-	private Text initNewText(Composite parent, String msg, String toolTip) {
+	private Text initNewText(Composite parent, String msg, String toolTip, String descriptionTipText) {
 		Text text = new Text(parent, SWT.BORDER);
-		text.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
+		text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true, 2, 1));
+		createControlDecorationForText(text, descriptionTipText);
 		text.setMessage(msg);
 		text.setToolTipText(toolTip);
-//		text.addModifyListener(new CustomModifyListenerForText());
 		return text;
 	}
 
-	private class CustomModifyListenerForText implements ModifyListener {
-
-		@Override
-		public void modifyText(ModifyEvent e) {
-			setDirty(true);
-			Text text = (Text) e.getSource();
-			if (isInputDataValid(text.getText(), text.getMessage()) || text.getText().length() == 0) {
-				text.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
-			} else {
-				text.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_RED));
-			}
-
-		}
-
-		private boolean isInputDataValid(String input, String nameOfTextField) {
-			switch (nameOfTextField) {
-			case "Name":
-				return RegExp.isNameValid(input);
-			case "Group":
-				return RegExp.isGroupValid(input);
-			case "Adress":
-				return RegExp.isAdressValid(input);
-			case "City":
-				return RegExp.isCityValid(input);
-			case "Result":
-				return RegExp.isResultValid(input);
-			default:
-				return false;
-			}
-		}
-
+	private ControlDecoration createControlDecorationForText(Text text, String descriptionText) {
+		ControlDecoration deco = new ControlDecoration(text, SWT.TOP | SWT.LEFT);
+		Image image = FieldDecorationRegistry.getDefault().getFieldDecoration(FieldDecorationRegistry.DEC_INFORMATION)
+				.getImage();
+		deco.setDescriptionText(descriptionText);
+		deco.setImage(image);
+		deco.setShowOnlyOnFocus(false);
+		return deco;
 	}
 
 	@Override

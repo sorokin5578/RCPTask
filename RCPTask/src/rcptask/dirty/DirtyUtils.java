@@ -1,5 +1,6 @@
 package rcptask.dirty;
 
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -24,7 +25,6 @@ public class DirtyUtils {
 				Text text = (Text) control;
 				text.addModifyListener(new CustomModifyListenerForText(listener));
 			}
-			// Not support
 			else {
 				throw new UnsupportedOperationException("Not support for " + control.getClass().getSimpleName());
 			}
@@ -34,6 +34,7 @@ public class DirtyUtils {
 	private static class CustomModifyListenerForText implements ModifyListener {
 
 		private DirtyListener listener;
+		private boolean isMsgWasShown;
 
 		public CustomModifyListenerForText(DirtyListener listener) {
 			this.listener = listener;
@@ -44,8 +45,13 @@ public class DirtyUtils {
 			Text text = (Text) e.getSource();
 			if (isInputDataValid(text.getText(), text.getMessage()) || text.getText().length() == 0) {
 				text.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
+				isMsgWasShown=false;
 			} else {
 				text.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_RED));
+				if (!isMsgWasShown) {
+					MessageDialog.openWarning(null, "Warning", "Wrong input!\nСheck the field hint");
+					isMsgWasShown = true;
+				}
 			}
 			listener.fireDirty();
 

@@ -27,6 +27,7 @@ public class CSVReader {
 				student.setAdress(data[2].trim());
 				student.setCity(data[3].trim());
 				student.setResult(Integer.parseInt(data[4].trim()));
+				student.setImgPath("");
 				if (data.length == 6) {
 					student.setImgPath(data[5].trim());
 				}

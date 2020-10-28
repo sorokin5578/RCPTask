@@ -8,14 +8,15 @@ import rcptask.command.StudentCommand;
 
 public class AddAction extends Action {
 
-	public AddAction(String label, String iconPath) {
-		setText(label);
-		setImageDescriptor(Activator.getImageDescriptor(iconPath));
+	public AddAction() {
+		super("Add@Ctrl+A", AS_PUSH_BUTTON);
+		setImageDescriptor(Activator.getImageDescriptor("/icons/add.png"));
 	}
 
 	@Override
 	public void run() {
 		try {
+			System.out.println("action add");
 			new StudentCommand().execute(null);
 		} catch (ExecutionException e) {
 			e.printStackTrace();

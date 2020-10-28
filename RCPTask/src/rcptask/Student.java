@@ -10,6 +10,7 @@ public class Student {
 	private String city;
 	private Integer result;
 	private String imgPath;
+	private String filePath;
 
 	public Student() {
 	}
@@ -77,6 +78,14 @@ public class Student {
 
 	public void setImgPath(String imgPath) {
 		this.imgPath = imgPath;
+	}
+	
+	public String getFilePath() {
+		return filePath;
+	}
+
+	public void setFilePath(String filePath) {
+		this.filePath = filePath;
 	}
 
 	@Override

@@ -61,13 +61,10 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 			if (control instanceof CTabFolder) {
 				cTabFolder = (CTabFolder) control;
 				break;
-			} else {
-				if (control instanceof Composite) {
-					findCTabFolder(((Composite) control).getChildren());
-				}
+			} else if (control instanceof Composite) {
+				findCTabFolder(((Composite) control).getChildren());
 			}
 		}
-
 	}
 
 	private void dnd() {

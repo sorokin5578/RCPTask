@@ -22,10 +22,10 @@ import org.eclipse.ui.IWorkbenchPartConstants;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 
+import my.extension.point.ImgReaderEP;
 import rcptask.dirty.MyConstants;
 import rcptask.entity.Student;
 import rcptask.utils.CSVWriter;
-import rcptask.utils.ImgReader2;
 import rcptask.viewpac.NavigationView;
 
 public class StudentEditor extends AbstractBaseEditor implements IReusableEditor {
@@ -150,7 +150,7 @@ public class StudentEditor extends AbstractBaseEditor implements IReusableEditor
 		pathText.setText(student.getImgPath() == null ? "" : student.getImgPath());
 		if (student.getImgPath() != null) {
 			try {
-				imgLabel.setImage(ImgReader2.getImg(null, student.getImgPath()));
+				imgLabel.setImage(ImgReaderEP.getImage(null, student.getImgPath()));
 				pathText.setText(student.getImgPath());
 				setFocus();
 			} catch (Exception e) {
@@ -209,7 +209,7 @@ public class StudentEditor extends AbstractBaseEditor implements IReusableEditor
 			String path = imgDialog.open();
 			if (path != null) {
 				try {
-					imgLabel.setImage(ImgReader2.getImg(null, path));
+					imgLabel.setImage(ImgReaderEP.getImage(null, path));
 					pathText.setText(path);
 					setFocus();
 				} catch (Exception e1) {

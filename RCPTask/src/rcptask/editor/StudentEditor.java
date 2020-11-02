@@ -198,7 +198,6 @@ public class StudentEditor extends AbstractBaseEditor implements IReusableEditor
 				&& groupText.getText().length() > 0 && adressText != null && adressText.getText().length() > 0
 				&& cityText != null && cityText.getText().length() > 0 && resulText != null
 				&& resulText.getText().length() > 0;
-
 	}
 
 	class CustomMouseListener extends MouseAdapter {

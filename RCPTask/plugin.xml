@@ -17,6 +17,9 @@
             class="rcptask.Perspective"
             name="RCP Perspective"
             id="RCPTask.perspective">
+         <description>
+            description body text!!!!!!!!!
+         </description>
       </perspective>
    </extension>
       <extension
@@ -178,5 +181,12 @@
       </key>
       
    </extension>
+         <extension
+               point="my.extension.point.utils">
+            <reader
+                  class="rcptask.utils.CSVReader2"></reader>
+            <imgReader
+                  class="rcptask.utils.ImgReader2"></imgReader>
+         </extension>
 
 </plugin>

@@ -56,7 +56,7 @@ public class CSVWriter {
 			csvWriter.append(coma);
 			csvWriter.append(String.valueOf(newStudent.getGroup()));
 			csvWriter.append(coma);
-			csvWriter.append(newStudent.getAdress());
+			csvWriter.append(newStudent.getAdress().replace(",", "%"));
 			csvWriter.append(coma);
 			csvWriter.append(newStudent.getCity());
 			csvWriter.append(coma);

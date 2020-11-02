@@ -8,7 +8,7 @@ import rcptask.editor.StudentEditor;
 import rcptask.viewpac.NavigationView;
 
 public class Perspective implements IPerspectiveFactory {
-
+	
 	@Override
 	public void createInitialLayout(IPageLayout layout) {
 		String editorArea = layout.getEditorArea();

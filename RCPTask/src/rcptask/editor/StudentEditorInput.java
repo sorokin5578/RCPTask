@@ -47,7 +47,4 @@ public class StudentEditorInput implements IEditorInput {
 	public String getToolTipText() {
 		return "Student Tab";
 	}
-	
-	
-
 }

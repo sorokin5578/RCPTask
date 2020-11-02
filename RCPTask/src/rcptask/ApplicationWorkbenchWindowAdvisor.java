@@ -26,5 +26,4 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
 		configurer.setShowStatusLine(false);
 		configurer.setTitle("Group Info"); //$NON-NLS-1$
 	}
-
 }

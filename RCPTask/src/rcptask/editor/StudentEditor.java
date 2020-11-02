@@ -25,12 +25,13 @@ import org.eclipse.ui.PlatformUI;
 import rcptask.dirty.MyConstants;
 import rcptask.entity.Student;
 import rcptask.utils.CSVWriter;
-import rcptask.utils.ImgUtil;
+import rcptask.utils.ImgReader2;
 import rcptask.viewpac.NavigationView;
 
 public class StudentEditor extends AbstractBaseEditor implements IReusableEditor {
 
 	public static final String ID = "rcptask.editor.studentEditor";
+	private static final String TOOL_TIP_TXT = "Click here to load your image";
 
 	private Text nameText;
 	private Text groupText;
@@ -50,7 +51,7 @@ public class StudentEditor extends AbstractBaseEditor implements IReusableEditor
 		// Text part
 		//
 		Composite textComposite = new Composite(top, SWT.NONE);
-		textComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		textComposite.setLayoutData(new GridData(SWT.FILL, SWT.TOP, false, false, 1, 1));
 		textComposite.setLayout(new GridLayout(3, false));
 
 		initNewLabel(textComposite, "Name");
@@ -75,13 +76,17 @@ public class StudentEditor extends AbstractBaseEditor implements IReusableEditor
 		//
 		// Image part
 		//
+
 		Composite imgComposite = new Composite(top, SWT.NONE);
 		imgComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		imgComposite.setLayout(new GridLayout(1, true));
+		imgComposite.setToolTipText(TOOL_TIP_TXT);
+		imgComposite.addMouseListener(new CustomMouseListener());
 
 		imgLabel = new Label(imgComposite, SWT.NONE);
 		imgLabel.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, true, 1, 1));
-		imgLabel.setText("Click here to load your image");
+		imgLabel.setText(TOOL_TIP_TXT);
+		imgLabel.setToolTipText(TOOL_TIP_TXT);
 
 		pathText = new Text(imgComposite, SWT.NONE);
 		pathText.setVisible(false);
@@ -93,28 +98,34 @@ public class StudentEditor extends AbstractBaseEditor implements IReusableEditor
 	}
 
 	@Override
-	public void setFocus() {
-		// empty
-	}
-
-	@Override
 	public void doSave(IProgressMonitor monitor) {
 		IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 		NavigationView navigationView = (NavigationView) window.getActivePage().findView(NavigationView.ID);
-		if (checkDataValid()) {
-			Student newStudent = new Student(nameText.getText(), Integer.parseInt(groupText.getText()),
-					adressText.getText(), cityText.getText(), Integer.parseInt(resulText.getText()),
-					pathText.getText());
-			Student oldStudent = ((StudentEditorInput) getEditorInput()).getStudent();
-			if (CSVWriter.writeCSVInFile(newStudent, oldStudent, navigationView.getPath())) {
-				navigationView.refreshTree();
-				this.setInput(new StudentEditorInput(newStudent));
-				this.setDirty(false);
-				this.firePropertyChange(MyConstants.EDITOR_DATA_CHANGED);
-				setPartName(newStudent.getName());
+		if (navigationView.getPath() != null) {
+			if (checkDataValid()) {
+				Student newStudent = new Student(nameText.getText(), Integer.parseInt(groupText.getText()),
+						adressText.getText(), cityText.getText(), Integer.parseInt(resulText.getText()),
+						pathText.getText());
+				Student oldStudent = ((StudentEditorInput) getEditorInput()).getStudent();
+				if (CSVWriter.writeCSVInFile(newStudent, oldStudent, navigationView.getPath())) {
+					navigationView.refreshTree();
+					this.setInput(new StudentEditorInput(newStudent));
+					this.setDirty(false);
+					this.firePropertyChange(MyConstants.EDITOR_DATA_CHANGED);
+					setPartName(newStudent.getName());
+				}
+			} else {
+				String msg = "All fields must be filled. Changes will not be saved!\nСontinue?";
+				if (!MessageDialog.openConfirm(window.getShell(), "Warning", msg)) {
+					monitor.setCanceled(true);
+				}
 			}
+
 		} else {
-			MessageDialog.openInformation(window.getShell(), "Info", "All fields must be filled!");
+			String msg = "Groups folder is not open. Changes will not be saved!\nСontinue?";
+			if (!MessageDialog.openConfirm(window.getShell(), "Warning", msg)) {
+				monitor.setCanceled(true);
+			}
 		}
 	}
 
@@ -139,8 +150,9 @@ public class StudentEditor extends AbstractBaseEditor implements IReusableEditor
 		pathText.setText(student.getImgPath() == null ? "" : student.getImgPath());
 		if (student.getImgPath() != null) {
 			try {
-				imgLabel.setImage(ImgUtil.getImage(null, student.getImgPath()));
+				imgLabel.setImage(ImgReader2.getImg(null, student.getImgPath()));
 				pathText.setText(student.getImgPath());
+				setFocus();
 			} catch (Exception e) {
 				imgLabel.setText("Can not find your image");
 				pathText.setText("");
@@ -197,8 +209,9 @@ public class StudentEditor extends AbstractBaseEditor implements IReusableEditor
 			String path = imgDialog.open();
 			if (path != null) {
 				try {
-					imgLabel.setImage(ImgUtil.getImage(null, path));
+					imgLabel.setImage(ImgReader2.getImg(null, path));
 					pathText.setText(path);
+					setFocus();
 				} catch (Exception e1) {
 					imgLabel.setText("Can not find your image");
 					pathText.setText("");

@@ -18,10 +18,10 @@ public class StudentCommand extends AbstractHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-
 		IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 		IWorkbenchPage page = window.getActivePage();
 		StudentEditorInput input = new StudentEditorInput(new Student());
+
 		try {
 			page.openEditor(input, StudentEditor.ID);
 		} catch (PartInitException e) {

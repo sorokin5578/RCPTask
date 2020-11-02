@@ -26,7 +26,7 @@ public class OpenCommand extends AbstractHandler {
 			navigationView.setPath(path);
 			navigationView.refreshTree();
 		}
+		window.getShell().setFocus();
 		return null;
 	}
-
 }

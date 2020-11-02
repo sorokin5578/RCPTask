@@ -20,6 +20,5 @@ public class DeleteAction extends Action {
 		} catch (ExecutionException e) {
 			e.printStackTrace();
 		}
-
 	}
 }

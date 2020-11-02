@@ -16,5 +16,4 @@ public class AboutCommand extends AbstractHandler {
 		MessageDialog.openInformation(shell, "About", "This product is demo.\n(c) 2020");
 		return null;
 	}
-
 }

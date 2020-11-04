@@ -44,7 +44,7 @@ public class CSVWriter {
 			csvWriter.append(coma);
 			csvWriter.append("Group");
 			csvWriter.append(coma);
-			csvWriter.append("Adress");
+			csvWriter.append("Address");
 			csvWriter.append(coma);
 			csvWriter.append("City");
 			csvWriter.append(coma);
@@ -67,9 +67,9 @@ public class CSVWriter {
 			MessageDialog.openInformation(null, "Info", "Saving success.\nYour list in " + filePath);
 			return true;
 		} catch (IOException e) {
-			e.printStackTrace();
+			return false;
 		}
-		return false;
+		
 	}
 
 	private static String getAbsolutePath(String folderPath, Integer studentGroup, String studentName) {

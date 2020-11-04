@@ -60,8 +60,8 @@ public class StudentEditor extends AbstractBaseEditor implements IReusableEditor
 		initNewLabel(textComposite, "Group");
 		groupText = initNewText(textComposite, "Group", "Insert group", "Enter one number");
 
-		initNewLabel(textComposite, "Adress");
-		adressText = initNewText(textComposite, "Adress", "Insert adress", "Enter the address using words and numbers");
+		initNewLabel(textComposite, "Address");
+		adressText = initNewText(textComposite, "Address", "Insert adress", "Enter the address using words and numbers");
 
 		initNewLabel(textComposite, "City");
 		cityText = initNewText(textComposite, "City", "Insert city", "Enter one or more words");
@@ -148,7 +148,7 @@ public class StudentEditor extends AbstractBaseEditor implements IReusableEditor
 		cityText.setText(student.getCity() == null ? "" : student.getCity());
 		resulText.setText(student.getName() == null ? "" : String.valueOf(student.getResult()));
 		pathText.setText(student.getImgPath() == null ? "" : student.getImgPath());
-		if (student.getImgPath() != null) {
+		if (student.getImgPath().length()!=0) {
 			try {
 				imgLabel.setImage(ImgReaderEP.getImage(null, student.getImgPath()));
 				pathText.setText(student.getImgPath());

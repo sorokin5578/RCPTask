@@ -1,6 +1,7 @@
 package rcptask;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -90,13 +91,14 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 				File fileToRead = new File(event.data.toString());
 				if (!fileToRead.isDirectory()) {
 					Student student = new Student();
-					try {
-						student = CSVReader2.readStudent(fileToRead.getAbsolutePath());
-					} catch (NumberFormatException | IOException e) {
-						navigationView.createErrorDialog(e, window);
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
+						try {
+							student = CSVReader2.readStudent(fileToRead.getAbsolutePath());
+						} catch (FileNotFoundException e1) {
+							navigationView.createErrorDialog(e1, window);
+						} catch (IOException e1) {
+							navigationView.createErrorDialog(e1, window);
+						}
+					
 					StudentEditorInput input = new StudentEditorInput(student);
 					boolean found = false;
 

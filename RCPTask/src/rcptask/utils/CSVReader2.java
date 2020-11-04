@@ -1,17 +1,20 @@
 package rcptask.utils;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import my.extension.point.CSVReaderEP;
 import rcptask.entity.Student;
 
-public class CSVReader2{
-	public static Student readStudent(String pathToCsv) throws NumberFormatException, IOException, Exception {
+public class CSVReader2 {
+	private CSVReader2() {
+	}
+
+	public static Student readStudent(String pathToCsv) throws FileNotFoundException, IOException {
 		return readStudent(pathToCsv, ",");
 	}
 
-	public static Student readStudent(String pathToCsv, String split)
-			throws NumberFormatException, IOException, Exception {
+	public static Student readStudent(String pathToCsv, String split) throws FileNotFoundException, IOException {
 		String[] data = CSVReaderEP.readStudentFromCSV(pathToCsv, split);
 		Student student = new Student();
 		student.setName(data[0].trim());
